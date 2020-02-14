@@ -63,6 +63,16 @@ Label_GRF_AV = gaitdata['Feature_GRF_AV_Label'][0][0]   # x 6 channel label
 #transposing axes, to obtain N x time x channel axis ordering, as in Horst et al. 2019
 X_GRF_AV = numpy.transpose(X_GRF_AV, [0, 2, 1])         # N x 101 x 6
 
+#
+# TODO: REMOVE DATA LOADING AND BELOW DATA EXTENSION HACK WITH LOADING OF PROPER DATA!
+#
+# extended data
+import numpy as np
+X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV], axis=1) # N x 202 x 6
+X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV[...,:2]], axis=2) # N x 202 x 8
+Label_GRF_AV = np.concatenate([Label_GRF_AV,Label_GRF_AV[...,:2]], axis=0) # extend channel labels
+# END OF DATA EXTENSION
+
 # Targets -> Subject labels und gender labels
 Y_Subject = gaitdata['Target_Subject']                  # 1142 x 57, binary labels
 Y_Injury = gaitdata['Target_Injury']                    # 1142 x 1 , binary labels
