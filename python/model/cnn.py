@@ -236,14 +236,14 @@ class Cnn1DC3(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 604 x 1 x 16
-        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 602 x 1 x 24
-        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 301 x 1 x 48
-        h4 = Convolution(filtersize=(4,1,48,48), stride=(3,1))  # h2 output: 99 x 1 x 48
-        h5 = Linear(99*48, n_classes)
+        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 1598 x 1 x 16
+        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 1596 x 1 x 24
+        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 797 x 1 x 48
+        h4 = Convolution(filtersize=(3,1,48,48), stride=(2,1))  # h2 output: 398 x 1 x 48
+        h5 = Linear(398*48, n_classes)
         self.model = Sequential([h1, Rect(),
                                  h2, Rect(),
                                  h3, Rect(),
@@ -264,14 +264,14 @@ class Cnn1DC6(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(6,1,1,16), stride=(1,1))  # h1 output: 601 x 1 x 16
-        h2 = Convolution(filtersize=(6,1,16,24), stride=(1,1))  # h2 output: 596 x 1 x 24
-        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 297 x 1 x 48
-        h4 = Convolution(filtersize=(6,1,48,48), stride=(3,1))  # h2 output: 98 x 1 x 48
-        h5 = Linear(98*48, n_classes)
+        h1 = Convolution(filtersize=(6,1,1,16), stride=(1,1))  # h1 output: 1595 x 1 x 16
+        h2 = Convolution(filtersize=(6,1,16,24), stride=(1,1))  # h2 output: 1590 x 1 x 24
+        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 794 x 1 x 48
+        h4 = Convolution(filtersize=(6,1,48,48), stride=(3,1))  # h2 output: 263 x 1 x 48
+        h5 = Linear(263*48, n_classes)
         self.model = Sequential([h1, Rect(),
                                  h2, Rect(),
                                  h3, Rect(),
@@ -292,13 +292,13 @@ class Cnn1DC8(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 300 x 1 x 16
-        h2 = Convolution(filtersize=(8,1,24,32), stride=(2,1))  # h2 output: 147 x 1 x 32
-        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 48 x 1 x 48
-        h4 = Linear(48*48, n_classes)
+        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 797 x 1 x 16
+        h2 = Convolution(filtersize=(8,1,24,32), stride=(3,1))  # h2 output: 264 x 1 x 32
+        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 87 x 1 x 48
+        h4 = Linear(87*48, n_classes)
         self.model = Sequential([h1, Rect(),
                                  h2, Rect(),
                                  h3, Rect(),
@@ -323,14 +323,14 @@ class Cnn1DC3_Tanh(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 604 x 1 x 16
-        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 602 x 1 x 24
-        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 301 x 1 x 48
-        h4 = Convolution(filtersize=(4,1,48,48), stride=(3,1))  # h2 output: 99 x 1 x 48
-        h5 = Linear(99*48, n_classes)
+        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 1598 x 1 x 16
+        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 1596 x 1 x 24
+        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 797 x 1 x 48
+        h4 = Convolution(filtersize=(3,1,48,48), stride=(2,1))  # h2 output: 398 x 1 x 48
+        h5 = Linear(398*48, n_classes)
         self.model = Sequential([h1, Tanh(),
                                  h2, Tanh(),
                                  h3, Tanh(),
@@ -351,13 +351,13 @@ class Cnn1DC8_Tanh(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 300 x 1 x 16
-        h2 = Convolution(filtersize=(8,1,24,32), stride=(2,1))  # h2 output: 147 x 1 x 32
-        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 48 x 1 x 48
-        h4 = Linear(48*48, n_classes)
+        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 797 x 1 x 16
+        h2 = Convolution(filtersize=(8,1,24,32), stride=(3,1))  # h2 output: 264 x 1 x 32
+        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 87 x 1 x 48
+        h4 = Linear(87*48, n_classes)
         self.model = Sequential([h1, Tanh(),
                                  h2, Tanh(),
                                  h3, Tanh(),
@@ -378,16 +378,16 @@ class Cnn1DC3_C(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 604 x 1 x 16
-        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 602 x 1 x 24
-        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 301 x 1 x 48
-        h4 = Convolution(filtersize=(4,1,48,48), stride=(3,1))  # h2 output: 99 x 1 x 48
-        h5 = Convolution(filtersize=(3,1,48,48), stride=(2,1))  # h2 output: 49 x 1 x 48
-        h6 = Convolution(filtersize=(3,1,48,24), stride=(2,1))  # h2 output: 24 x 1 x 24
-        h7 = Linear(24*24, n_classes)
+        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 1598 x 1 x 16
+        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 1596 x 1 x 24
+        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 797 x 1 x 48
+        h4 = Convolution(filtersize=(5,1,48,48), stride=(3,1))  # h2 output: 265 x 1 x 48
+        h5 = Convolution(filtersize=(3,1,48,48), stride=(2,1))  # h2 output: 132 x 1 x 48
+        h6 = Convolution(filtersize=(3,1,48,24), stride=(2,1))  # h2 output: 65 x 1 x 24
+        h7 = Linear(65*24, n_classes)
         self.model = Sequential([h1, Rect(),
                                  h2, Rect(),
                                  h3, Rect(),
@@ -411,16 +411,16 @@ class Cnn1DC3_CTanh(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault)
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 604 x 1 x 16
-        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 602 x 1 x 24
-        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 301 x 1 x 48
-        h4 = Convolution(filtersize=(4,1,48,48), stride=(3,1))  # h2 output: 99 x 1 x 48
-        h5 = Convolution(filtersize=(3,1,48,48), stride=(2,1))  # h2 output: 49 x 1 x 48
-        h6 = Convolution(filtersize=(3,1,48,24), stride=(2,1))  # h2 output: 24 x 1 x 24
-        h7 = Linear(24*24, n_classes)
+        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 1598 x 1 x 16
+        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 1596 x 1 x 24
+        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 797 x 1 x 48
+        h4 = Convolution(filtersize=(5,1,48,48), stride=(3,1))  # h2 output: 265 x 1 x 48
+        h5 = Convolution(filtersize=(3,1,48,48), stride=(2,1))  # h2 output: 132 x 1 x 48
+        h6 = Convolution(filtersize=(3,1,48,24), stride=(2,1))  # h2 output: 65 x 1 x 24
+        h7 = Linear(65*24, n_classes)
         self.model = Sequential([h1, Tanh(),
                                  h2, Tanh(),
                                  h3, Tanh(),
@@ -443,15 +443,15 @@ class Cnn1DC8_C(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 300 x 1 x 16
-        h2 = Convolution(filtersize=(8,1,24,32), stride=(2,1))  # h2 output: 147 x 1 x 32
-        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 48 x 1 x 48
-        h4 = Convolution(filtersize=(6,1,48,48), stride=(3,1))  # h3 output: 15 x 1 x 48
-        h5 = Convolution(filtersize=(6,1,48,24), stride=(3,1))  # h3 output: 4 x 1 x 24
-        h6 = Linear(4*24, n_classes)
+        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 797 x 1 x 16
+        h2 = Convolution(filtersize=(8,1,24,32), stride=(3,1))  # h2 output: 264 x 1 x 32
+        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 87 x 1 x 48
+        h4 = Convolution(filtersize=(6,1,48,48), stride=(3,1))  # h3 output: 28 x 1 x 48
+        h5 = Convolution(filtersize=(6,1,48,24), stride=(2,1))  # h3 output: 12 x 1 x 24
+        h6 = Linear(12*24, n_classes)
         self.model = Sequential([h1, Rect(),
                                  h2, Rect(),
                                  h3, Rect(),
@@ -474,15 +474,15 @@ class Cnn1DC8_CTanh(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault)
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 300 x 1 x 16
-        h2 = Convolution(filtersize=(8,1,24,32), stride=(2,1))  # h2 output: 147 x 1 x 32
-        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 48 x 1 x 48
-        h4 = Convolution(filtersize=(6,1,48,48), stride=(3,1))  # h3 output: 15 x 1 x 48
-        h5 = Convolution(filtersize=(6,1,48,24), stride=(3,1))  # h3 output: 4 x 1 x 24
-        h6 = Linear(4*24, n_classes)
+        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 797 x 1 x 16
+        h2 = Convolution(filtersize=(8,1,24,32), stride=(3,1))  # h2 output: 264 x 1 x 32
+        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 87 x 1 x 48
+        h4 = Convolution(filtersize=(6,1,48,48), stride=(3,1))  # h3 output: 28 x 1 x 48
+        h5 = Convolution(filtersize=(6,1,48,24), stride=(2,1))  # h3 output: 12 x 1 x 24
+        h6 = Linear(12*24, n_classes)
         self.model = Sequential([h1, Tanh(),
                                  h2, Tanh(),
                                  h3, Tanh(),
@@ -506,16 +506,16 @@ class Cnn1DC3_D(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 604 x 1 x 16
-        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 602 x 1 x 24
-        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 301 x 1 x 48
-        h4 = Convolution(filtersize=(4,1,48,48), stride=(3,1))  # h2 output: 99 x 1 x 48
-        h5 = Linear(99*48, 48*48)
-        h6 = Linear(48*48, 24*24)
-        h7 = Linear(24*24, n_classes)
+        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 1598 x 1 x 16
+        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 1596 x 1 x 24
+        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 797 x 1 x 48
+        h4 = Convolution(filtersize=(5,1,48,48), stride=(3,1))  # h2 output: 265 x 1 x 48
+        h5 = Linear(265*48, 132*48)
+        h6 = Linear(132*48, 48*24)
+        h7 = Linear(48*24, n_classes)
         self.model = Sequential([h1, Rect(),
                                  h2, Rect(),
                                  h3, Rect(),
@@ -538,16 +538,16 @@ class Cnn1DC3_DTanh(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault)
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 604 x 1 x 16
-        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 602 x 1 x 24
-        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 301 x 1 x 48
-        h4 = Convolution(filtersize=(4,1,48,48), stride=(3,1))  # h2 output: 99 x 1 x 48
-        h5 = Linear(99*48, 48*48)
-        h6 = Linear(48*48, 24*24)
-        h7 = Linear(24*24, n_classes)
+        h1 = Convolution(filtersize=(3,1,1,16), stride=(1,1))  # h1 output: 1598 x 1 x 16
+        h2 = Convolution(filtersize=(3,1,16,24), stride=(1,1))  # h2 output: 1596 x 1 x 24
+        h3 = Convolution(filtersize=(4,1,24,48), stride=(2,1))  # h2 output: 797 x 1 x 48
+        h4 = Convolution(filtersize=(5,1,48,48), stride=(3,1))  # h2 output: 265 x 1 x 48
+        h5 = Linear(265*48, 132*48)
+        h6 = Linear(132*48, 48*24)
+        h7 = Linear(48*24, n_classes)
         self.model = Sequential([h1, Tanh(),
                                  h2, Tanh(),
                                  h3, Tanh(),
@@ -570,13 +570,13 @@ class Cnn1DC8_D(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault):
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 300 x 1 x 16
-        h2 = Convolution(filtersize=(8,1,24,32), stride=(2,1))  # h2 output: 147 x 1 x 32
-        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 48 x 1 x 48
-        h4 = Linear(48*48, 48*24)
+        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 797 x 1 x 16
+        h2 = Convolution(filtersize=(8,1,24,32), stride=(3,1))  # h2 output: 264 x 1 x 32
+        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 87 x 1 x 48
+        h4 = Linear(87*48, 48*24)
         h5 = Linear(48*24, 24*24)
         h6 = Linear(24*24, n_classes)
         self.model = Sequential([h1, Rect(),
@@ -601,13 +601,13 @@ class Cnn1DC8_DTanh(Convolution1DArchitectureBase, NeuralNetworkTrainingDefault)
     def build_model(self, x_shape, y_shape):
         #samples are expected in shape 606 x 1 ie x_shape should be N x 606 x 1
         self.assert_shapes(x_shape, y_shape)
-        assert x_shape[1:] == (606, 1, 1)
+        assert x_shape[1:] == (200*8, 1, 1)
         n_classes = y_shape[1]
 
-        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 300 x 1 x 16
-        h2 = Convolution(filtersize=(8,1,24,32), stride=(2,1))  # h2 output: 147 x 1 x 32
-        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 48 x 1 x 48
-        h4 = Linear(48*48, 48*24)
+        h1 = Convolution(filtersize=(8,1,1,24), stride=(2,1))  # h1 output: 797 x 1 x 16
+        h2 = Convolution(filtersize=(8,1,24,32), stride=(3,1))  # h2 output: 264 x 1 x 32
+        h3 = Convolution(filtersize=(6,1,32,48), stride=(3,1))  # h3 output: 87 x 1 x 48
+        h4 = Linear(87*48, 48*24)
         h5 = Linear(48*24, 24*24)
         h6 = Linear(24*24, n_classes)
         self.model = Sequential([h1, Tanh(),

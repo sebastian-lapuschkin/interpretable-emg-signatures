@@ -51,6 +51,7 @@ def get_training(name):
     trainings = {
         "NeuralNetworkTrainingDefault".lower():NeuralNetworkTrainingDefault,
         "NeuralNetworkTrainingIncreaseBatchSize".lower():NeuralNetworkTrainingIncreaseBatchSize,
-        "NeuralNetworkTrainingQuickTest".lower():NeuralNetworkTrainingQuickTest
+        "Debug".lower():NeuralNetworkTrainingQuickTest,
+
     }
     return trainings[name.lower()]
