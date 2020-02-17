@@ -1,10 +1,32 @@
 
+import os
+import argparse
+
 import importlib.util as imp
 import numpy
 if imp.find_spec("cupy"): import cupy
-import os
 
-def create_index_splits(Y_Subject, Y_Injury, splits = 10, seed=None):
+
+
+def str2bool(value):
+    """
+    Helper fxn for argument parsing from command line
+    """
+    true_vals = ['1', 't', 'true', 'y', 'yes', 'please']
+    false_vals = ['0', 'f', 'false', 'n', 'no', 'ohgod']
+
+    if isinstance(value, bool):
+        return value
+    elif isinstance(value, (int, float)):
+        return value > 0
+    elif value.lower() in true_vals:
+        return True
+    elif value.lower() in false_vals:
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Invalid boolean argument '{}'. Please stick to values from '{}'".format(value, true_vals + false_vals))
+
+def create_index_splits(Y, splits = 10, seed=None, enforce_equal_splits=False):
     """ this method subdivides the given labels into optimal groups
 
         for the subject prediction labels, it divides the indices into equally sized groups,
@@ -14,13 +36,14 @@ def create_index_splits(Y_Subject, Y_Injury, splits = 10, seed=None):
         data is split into partitions where no subject can reoccur
     """
 
+    N, P = Y.shape
+
     assert splits > 3, 'At least three splits required'
+    if enforce_equal_splits:
+        assert Y.shape[0]/splits == Y.shape[0]//splits, "Splits can not be created evenly in size if split count {} does not divide data count {} evenly".format(splits, Y.shape[0])
 
-    #number of samples
-    assert Y_Subject.shape[0] == Y_Injury.shape[0], 'Number of Subject and Gender sample labels differ: {} vs {}'.format(Y_Subject.shape, Y_Injury.shape)
-
-    N, P = Y_Subject.shape
-    _, I = Y_Injury.shape
+    samples_per_class = Y.sum(axis=0)
+    assert numpy.all(samples_per_class >= splits), "Can not split data meaningfully, if smallest class size {} < number of splits {}".format(samples_per_class.min(), splits)
 
     #create global permutation sequence
     Permutation = numpy.arange(N)
@@ -30,15 +53,14 @@ def create_index_splits(Y_Subject, Y_Injury, splits = 10, seed=None):
         Permutation = numpy.random.permutation(Permutation)
 
     #permute label matrices. also return this thing!
-    Y_Subject = Y_Subject[Permutation,...]
-    Y_Injury = Y_Injury[Permutation,...]
+    Y = Y[Permutation,...]
 
     #initialize index lists
     SubjectIndexSplits = [None]*splits
 
-    #1) create a split over subject labels first by iterating over all person labels and subdividing them as equally as possible.
+    # create a split over subject labels by iterating over all person labels and subdividing them as equally as possible.
     for i in range(P):
-        pIndices = numpy.where(Y_Subject[:,i] == 1)[0]
+        pIndices = numpy.where(Y[:,i] == 1)[0]
 
         #compute an approx equally sized partitioning.
         partitioning = numpy.linspace(0, len(pIndices), splits+1, dtype=int)
@@ -55,43 +77,9 @@ def create_index_splits(Y_Subject, Y_Injury, splits = 10, seed=None):
                 SubjectIndexSplits[si].extend(pIndices[partitioning[si]:partitioning[si+1]])
 
 
-    #2) create a split over injury labels, balancing injury as good as possible but by avoiding the same subject label in more than one bin.
-    #for injury recognition, we want to avoid the model to learn gait criteria of subjects and classify by that bias.
-    #first split into injury groups and use them as queues
-    injuryQueues = [numpy.where(Y_Injury[:, i] == 1)[0].tolist() for i in range(I)]
-    InjuryIndexSplits = [None]*splits
-    currentSplit = 0
-
-    #alternatingly move through injury lists and place people into splits accordingly.
-    #remove those people from the injury queues accordingly.
-    while sum([len(iQ) for iQ in injuryQueues]) > 0:
-        #make sure the split is populated
-        if InjuryIndexSplits[currentSplit] is None:
-            InjuryIndexSplits[currentSplit] = []
-
-        #for each injury get next person, if this injury is not yet exhausted.
-        for iQ in injuryQueues:
-            if len(iQ) == 0:
-                continue
-
-            #process lists/subjects:
-            #find out who the next person is. get all those entries.
-            pindex = numpy.where(Y_Subject[iQ[0], :])[0]
-            #get all the indices for that person.
-            pIndices = numpy.where(Y_Subject[:, pindex])[0]
-
-            #remove this person from its respective queue
-            for p in pIndices:
-                iQ.remove(p)
-
-            #and add it to its split group
-            InjuryIndexSplits[currentSplit].extend(pIndices)
-
-        #move split position
-        currentSplit = (currentSplit + 1) % splits
-
+    assert numpy.unique([len(s) for s in SubjectIndexSplits]).size == 1, "Not all splits have equally many samples: n={}".format([len(s) for s in SubjectIndexSplits])
     #return the indices for the subject recognition training, the gender recognition training and the original permutation to be applied on the data.
-    return SubjectIndexSplits, InjuryIndexSplits, Permutation
+    return SubjectIndexSplits, Permutation
 
 
 def convIOdims(D,F,S):
@@ -111,7 +99,7 @@ def ensure_dir_exists(path_to_dir):
     #    print('Target directory {} exists.'.format(path_to_dir))
 
 def trim_empty_classes(Y):
-    # expects an input array shaped Y x C. removes label columns for classes without samples.
+    # expects an input array shaped N x C. removes label columns for classes without samples.
     n_per_col = Y.sum(axis=0)
     empty_cols = n_per_col == 0
     if numpy.any(empty_cols):
@@ -122,6 +110,49 @@ def trim_empty_classes(Y):
     else:
         print('No empty columns detected in label matrix shaped {}'.format(Y.shape))
         return Y
+
+def equalize_population(X, Y, mode='crop'):
+    """
+    Equalize data population across classes.
+
+    Parmeters:
+    ----------
+    Y   --  numpy.array -- label array shaped N x C
+    X   --  numpy.array -- data array shaped  N x D
+    mode -- str -- euqualization mode. Currently only 'crop' is implemented, which undersamples the classes by removing highest indices from overpopulated classes
+    """
+
+    y_shape_pre = Y.shape
+    x_shape_pre = X.shape
+
+    samples_per_class = Y.sum(axis=0)
+    smallest_class_size = samples_per_class.min()
+
+    imbalanced_classes = numpy.where(samples_per_class > smallest_class_size)[0]
+
+    if imbalanced_classes.size > 0:
+        print('imbalanced classes detected: {}'.format(imbalanced_classes))
+        print('number of classes c={} | smallest class s={} | imbalanced classes n={}'.format(Y.shape[1], smallest_class_size, samples_per_class[imbalanced_classes]))
+        print('balancing by performing "{}"'.format(mode))
+        if mode == 'crop':
+            # remove samples from overpopulated classes by truncation
+            # build binary array of samples to keep to avoid data permutation
+            keep = numpy.ones((Y.shape[0]), dtype=bool)
+            for clzz in imbalanced_classes:
+                samples_to_remove = samples_per_class[clzz] - smallest_class_size
+                print('cropping {} samples from class {}'.format(samples_to_remove, clzz))
+                #set last samples_to_remove of affected class in keep to 0
+                keep[numpy.where((Y[:,clzz] > 0))[0][smallest_class_size::]] = 0
+
+            # crop array and data matrix
+            X = X[keep, ...]
+            Y = Y[keep, ...]
+
+    # nothing to do here
+    assert numpy.all(x_shape_pre[1::] == X.shape[1::]), 'Number of features in X changed during data rebalancing! should not have happened!'
+    assert numpy.all(y_shape_pre[1::] == Y.shape[1::]), 'Number of classes in Y changed during data rebalancing! should not have happened!'
+    return X, Y
+
 
 def arrays_to_cupy(*args):
     assert imp.find_spec("cupy"), "module cupy not found/installed."

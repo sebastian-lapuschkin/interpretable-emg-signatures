@@ -30,15 +30,17 @@ current_datetime = datetime.datetime.now()
 #setting up an argument parser for controllale command line calls
 import argparse
 parser = argparse.ArgumentParser(description="Train and evaluate Models on human gait recordings!")
-parser.add_argument('-d', '--data_path', type=str, default='./data/2019_frontiers_small_dataset_v3_aff-unaff-nonorm_1-2_.mat', help='Sets the path to the dataset mat-file to be processed')
-parser.add_argument('-o', '--output_dir', type=str, default='./output', help='Sets the output directory root for models and results. Default: "./output"')
+parser.add_argument('-d',  '--data_path', type=str, default='./data/2019_frontiers_small_dataset_v3_aff-unaff-nonorm_1-2_.mat', help='Sets the path to the dataset mat-file to be processed')
+parser.add_argument('-o',  '--output_dir', type=str, default='./output', help='Sets the output directory root for models and results. Default: "./output"')
 parser.add_argument('-me', '--model_exists', type=str, default='skip', help='Sets the behavior of the code in case a model file has been found at the output location. "skip" (default) skips remaining execution loop and does nothing. "retrain" trains the model anew. "evaluate" only evaluates the model with test data')
 parser.add_argument('-rs', '--random_seed', type=int, default=1234, help='Sets a random seed for the random number generator. Default: 1234')
-parser.add_argument('-s', '--splits', type=int, default=10, help='The number of splits to divide the data into. Default: 5')
-parser.add_argument('-a', '--architecture', type=str, default='SvmLinearL2C1e0', help='The name of the model architecture to use/train/evaluate. Can be any joint-specialization of model.base.ModelArchitecture and model.base.ModelTraining. Default: SvmLinearL2C1e0 ')
+parser.add_argument('-s',  '--splits', type=int, default=5, help='The number of splits to divide the data into. Default: 10')
+parser.add_argument('-ees','--enforce_equal_splits', type=helpers.str2bool, default=False, help='Whether to enforce equally sized splits (per class). Useful in combination with --equalize_population')
+parser.add_argument('-ep', '--equalize_population', type=helpers.str2bool, default=False, help='Equalize the data population by truncating overpopulated classes?')
+parser.add_argument('-a',  '--architecture', type=str, default='SvmLinearL2C1e0', help='The name of the model architecture to use/train/evaluate. Can be any joint-specialization of model.base.ModelArchitecture and model.base.ModelTraining. Default: SvmLinearL2C1e0 ')
 parser.add_argument('-tp', '--training_programme', type=str, default=None, help='The training regime for the (NN) model to follow. Can be any class from model.training or any class implementing model.base.ModelTraining. The default value None executes the training specified for the NN model as part of the class definition.')
 parser.add_argument('-dn', '--data_name', type=str, default='GRF_AV', help='The feature name of the data behind --data_path to be processed. Default: GRF_AV')
-parser.add_argument('-tn', '--target_name', type=str, default='Injury', help='The target type of the data behind --data_path to be processed. Default: Injury')
+parser.add_argument('-tn', '--target_name', type=str, default='Subject', help='The target type of the data behind --data_path to be processed. Default: Injury')
 parser.add_argument('-sd', '--save_data', type=bool, default=True, help='Whether to save the training and split data at the output directory root or not. Default: True')
 parser.add_argument('-ft', '--force_training_device', type=str, default=None, help='Force training to be performed on a specific device, despite the default chosen numeric backend? Options: cpu, gpu, None. Default: None: Pick as defined in model definition.')
 parser.add_argument('-fe', '--force_evaluation_device', type=str, default=None, help='Force evaluat to be performed on a specific device, despite the default chosen numeric backend? Options: cpu, gpu, None. Default: None. NOTE: Execution on GPU is beneficial in almost all cases, due to the massive across-batch-parallelism.')
@@ -63,43 +65,38 @@ Label_GRF_AV = gaitdata['Feature_GRF_AV_Label'][0][0]   # x 6 channel label
 #transposing axes, to obtain N x time x channel axis ordering, as in Horst et al. 2019
 X_GRF_AV = numpy.transpose(X_GRF_AV, [0, 2, 1])         # N x 101 x 6
 
+Y = gaitdata['Target_Subject']                  # N x S, binary labels
+
 #
 # TODO: REMOVE DATA LOADING AND BELOW DATA EXTENSION HACK WITH LOADING OF PROPER DATA!
 #
-# extended data
+# NOTE: extended toy data
 import numpy as np
-X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV], axis=1) # N x 202 x 6
-X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV[...,:2]], axis=2) # N x 202 x 8
+X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV], axis=1)[:,0:200,:] # N x 200 x 6
+X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV[...,:2]], axis=2) # N x 200 x 8
 Label_GRF_AV = np.concatenate([Label_GRF_AV,Label_GRF_AV[...,:2]], axis=0) # extend channel labels
-# END OF DATA EXTENSION
+Y =  np.array([Y[:,i*10:i*10+10].sum(axis=1)>0 for i in range(20)]).T #aggregate subject labels into 20 groups of 10(ish) classes
+print('toy data shape:', X_GRF_AV.shape, Y.shape)
+# END OF (Toy) DATA EXTENSION. Put real data here please.
 
-# Targets -> Subject labels und gender labels
-Y_Subject = gaitdata['Target_Subject']                  # 1142 x 57, binary labels
-Y_Injury = gaitdata['Target_Injury']                    # 1142 x 1 , binary labels
 
-#split data for experiments.
-Y_Injury_trimmed = helpers.trim_empty_classes(Y_Injury)
-Y_Subject_trimmed = helpers.trim_empty_classes(Y_Subject)
-SubjectIndexSplits, InjuryIndexSplits, Permutation = helpers.create_index_splits(Y_Subject_trimmed, Y_Injury_trimmed, splits=ARGS.splits, seed=ARGS.random_seed)
+X = X_GRF_AV       # prepare copy of data for each label type (due to introduced cleaning)
+print(Y.shape, Y.sum(axis=0))
 
+# remove labels/class information without data
+Y = helpers.trim_empty_classes(Y)
+
+# force class population euqlity, if desired
+if ARGS.equalize_population:
+    X_Injury, Y = helpers.equalize_population(X, Y, 'crop')
+print(Y.shape, Y.sum(axis=0))
+
+# split data for experiments.
+IndexSplits, Permutation = helpers.create_index_splits(Y, splits=ARGS.splits, seed=ARGS.random_seed, enforce_equal_splits=ARGS.enforce_equal_splits)
 #apply the permutation to the given data for the inputs and labels to match the splits again
-X_GRF_AV = X_GRF_AV[Permutation, ...]
-Y_Injury_trimmed = Y_Injury_trimmed[Permutation, ...]
-Y_Subject_trimmed = Y_Subject_trimmed[Permutation, ...]
+X = X[Permutation, ...]
+Y = Y[Permutation, ...]
 
-#specify which architectures should be processed. caution: selecting ALL models at once might exceed GPU memory.
-#cupy apparently does not support mark-and-sweep garbage collection
-#I recommend executing one-model-at-a-time. Do you need a command line argument parser for that?
-#Yes, I need an argument parser to conveniently handle that stuff.
-#below lines in comment are deprecated. just ignore them.
-#architectures = []
-#architectures += [SvmLinearL2C1e0, SvmLinearL2C1em1, SvmLinearL2C1ep1]
-#architectures += [MlpLinear, Mlp2Layer64Unit, Mlp2Layer128Unit, Mlp2Layer256Unit, Mlp2Layer512Unit, Mlp2Layer768Unit]
-#architectures += [Mlp3Layer64Unit, Mlp3Layer128Unit, Mlp3Layer256Unit]
-#architectures +=  [Mlp3Layer512Unit, Mlp3Layer768Unit]
-#architectures += [CnnA3, CnnA6]
-#architectures += [CnnC3, CnnC6]
-#architectures += [CnnC3_3]
 
 arch = ARGS.architecture
 if isinstance(arch, ModelArchitecture) and isinstance(arch, ModelTraining):
@@ -122,18 +119,18 @@ elif isinstance(training_regime, str):
 
 #register and then select available features
 #TODO: REFACTOR INTO A DATA LOADING CLASS once there is more than one valid feature type
-X, X_channel_labels = {'GRF_AV': (X_GRF_AV, Label_GRF_AV)}[ARGS.data_name]
+X, X_channel_labels = {'GRF_AV': (X, Label_GRF_AV)}[ARGS.data_name]
 
 #register and then select available targets
 #TODO: REFACTOR INTO A DATA LOADING CLASS
-Y, Y_splits = {'Injury': (Y_Injury_trimmed, InjuryIndexSplits) , 'Subject': (Y_Subject_trimmed, SubjectIndexSplits)}[ARGS.target_name]
+Y, Y_splits = {'Subject': (Y, IndexSplits)}[ARGS.target_name]
 
 # this load of parameters could also be packed into a dict and thenn passed as **param_dict, if this were to be automated further.
 train_test_cycle.run_train_test_cycle(
         X=X,
         Y=Y,
         L=X_channel_labels,
-        LS=Y_Subject,
+        LS=Y,
         S=Y_splits,
         P=Permutation,
         model_class=arch,
