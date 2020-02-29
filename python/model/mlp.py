@@ -133,7 +133,67 @@ class Mlp2Layer768Unit(Mlp2LayerTemplate):
         self.n_hidden = 768
 
 
+####################################################################
+# MLP Template class for all TANH-architectures with 2 hidden layers
+####################################################################
 
+class Mlp2LayerTanhTemplate(FullyConnectedArchitectureBase, NeuralNetworkTrainingDefault):
+    # 2 hidden layers of X neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = None #define number of hidden units in implementing classes
+
+    def build_model(self, x_shape, y_shape):
+        self.assert_shapes(x_shape, y_shape)
+        n_dims = numpy.prod(x_shape[1:])
+        n_classes = y_shape[1]
+
+        self.model = Sequential([
+            Flatten(),
+            Linear(n_dims, self.n_hidden), Tanh(),
+            Linear(self.n_hidden, n_classes), SoftMax()]
+            )
+        if not self.use_gpu:
+            self.model.to_numpy()
+        else:
+            self.model.to_cupy()
+            
+            
+################################################################
+# MLP classes with 2 hidden layers and hidden unit specification
+################################################################
+
+class Mlp2Layer64Unit_Tanh(Mlp2LayerTanhTemplate):
+    # 2 hidden layers of 64 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 64
+        self.use_gpu = False #not worth using the gpu yet
+
+class Mlp2Layer128Unit_Tanh(Mlp2LayerTanhTemplate):
+    # 2 hidden layers of 512 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 128
+
+class Mlp2Layer256Unit_Tanh(Mlp2LayerTanhTemplate):
+    # 2 hidden layers of 256 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 256
+
+class Mlp2Layer512Unit_Tanh(Mlp2LayerTanhTemplate):
+    # 2 hidden layers of 256 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 512
+
+class Mlp2Layer768Unit_Tanh(Mlp2LayerTanhTemplate):
+    # 2 hidden layers of 256 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 768
+        
 ####################################################################
 # MLP Template class for all RELU-architectures with 3 hidden layers
 ####################################################################
@@ -195,6 +255,65 @@ class Mlp3Layer768Unit(Mlp3LayerTemplate):
         self.n_hidden = 768
 
 
+####################################################################
+# MLP Template class for all TANH-architectures with 3 hidden layers
+####################################################################
+
+class Mlp3LayerTanhTemplate(FullyConnectedArchitectureBase, NeuralNetworkTrainingDefault):
+    # 3 hidden layers of X neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = None #define number of hidden units in implementing classes
+
+    def build_model(self, x_shape, y_shape):
+        self.assert_shapes(x_shape, y_shape)
+        n_dims = numpy.prod(x_shape[1:])
+        n_classes = y_shape[1]
+
+        self.model = Sequential([
+            Flatten(),
+            Linear(n_dims, self.n_hidden), Tanh(),
+            Linear(self.n_hidden, self.n_hidden), Tanh(),
+            Linear(self.n_hidden, n_classes), SoftMax()]
+            )
+        if not self.use_gpu:
+            self.model.to_numpy()
+        else:
+            self.model.to_cupy()
+
+################################################################
+# MLP classes with 3 hidden layers and hidden unit specification
+################################################################
+
+class Mlp3Layer64Unit_Tanh(Mlp3LayerTanhTemplate):
+    # 3 hidden layers of 64 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 64
+
+class Mlp3Layer128Unit_Tanh(Mlp3LayerTanhTemplate):
+    # 3 hidden layers of 512 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 128
+
+class Mlp3Layer256Unit_Tanh(Mlp3LayerTanhTemplate):
+    # 3 hidden layers of 256 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 256
+
+class Mlp3Layer512Unit_Tanh(Mlp3LayerTanhTemplate):
+    # 3 hidden layers of 256 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 512
+
+class Mlp3Layer768Unit_Tanh(Mlp3LayerTanhTemplate):
+    # 3 hidden layers of 256 neurons
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_hidden = 768
 
 ##############################################################################################################
 # MLP classes with 3 hidden layers and hidden unit specification, longer training, larger batches, more epochs

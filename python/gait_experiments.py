@@ -34,7 +34,7 @@ parser.add_argument('-d',  '--data_path', type=str, default='./data/2019_frontie
 parser.add_argument('-o',  '--output_dir', type=str, default='./output', help='Sets the output directory root for models and results. Default: "./output"')
 parser.add_argument('-me', '--model_exists', type=str, default='skip', help='Sets the behavior of the code in case a model file has been found at the output location. "skip" (default) skips remaining execution loop and does nothing. "retrain" trains the model anew. "evaluate" only evaluates the model with test data')
 parser.add_argument('-rs', '--random_seed', type=int, default=1234, help='Sets a random seed for the random number generator. Default: 1234')
-parser.add_argument('-s',  '--splits', type=int, default=5, help='The number of splits to divide the data into. Default: 10')
+parser.add_argument('-s',  '--splits', type=int, default=10, help='The number of splits to divide the data into. Default: 10')
 parser.add_argument('-ees','--enforce_equal_splits', type=helpers.str2bool, default=False, help='Whether to enforce equally sized splits (per class). Useful in combination with --equalize_population')
 parser.add_argument('-ep', '--equalize_population', type=helpers.str2bool, default=False, help='Equalize the data population by truncating overpopulated classes?')
 parser.add_argument('-a',  '--architecture', type=str, default='SvmLinearL2C1e0', help='The name of the model architecture to use/train/evaluate. Can be any joint-specialization of model.base.ModelArchitecture and model.base.ModelTraining. Default: SvmLinearL2C1e0 ')
@@ -60,7 +60,7 @@ gaitdata = scio.loadmat(ARGS.data_path)
 
 # Feature -> Bodenreaktionskraft
 X_GRF_AV = gaitdata['Feature']
-Label_GRF_AV = gaitdata['Feature_GRF_AV_Label'][0][0]   # x 6 channel label
+Label_GRF_AV = gaitdata['Feature_EMG_Label'][0][0]   # x 6 channel label
 
 #transposing axes, to obtain N x time x channel axis ordering, as in Horst et al. 2019
 X_GRF_AV = numpy.transpose(X_GRF_AV, [0, 2, 1])         # N x 101 x 6
@@ -72,10 +72,10 @@ Y = gaitdata['Target_Subject']                  # N x S, binary labels
 #
 # NOTE: extended toy data
 import numpy as np
-X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV], axis=1)[:,0:200,:] # N x 200 x 6
-X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV[...,:2]], axis=2) # N x 200 x 8
-Label_GRF_AV = np.concatenate([Label_GRF_AV,Label_GRF_AV[...,:2]], axis=0) # extend channel labels
-Y =  np.array([Y[:,i*10:i*10+10].sum(axis=1)>0 for i in range(20)]).T #aggregate subject labels into 20 groups of 10(ish) classes
+#X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV], axis=1)[:,0:200,:] # N x 200 x 6
+#X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV[...,:2]], axis=2) # N x 200 x 8
+#Label_GRF_AV = np.concatenate([Label_GRF_AV,Label_GRF_AV[...,:2]], axis=0) # extend channel labels
+#Y =  np.array([Y[:,i*10:i*10+10].sum(axis=1)>0 for i in range(20)]).T #aggregate subject labels into 20 groups of 10(ish) classes
 print('toy data shape:', X_GRF_AV.shape, Y.shape)
 # END OF (Toy) DATA EXTENSION. Put real data here please.
 

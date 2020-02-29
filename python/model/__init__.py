@@ -16,11 +16,23 @@ from .mlp import Mlp2Layer256Unit
 from .mlp import Mlp2Layer512Unit
 from .mlp import Mlp2Layer768Unit
 
+from .mlp import Mlp2Layer64Unit_Tanh
+from .mlp import Mlp2Layer128Unit_Tanh
+from .mlp import Mlp2Layer256Unit_Tanh
+from .mlp import Mlp2Layer512Unit_Tanh
+from .mlp import Mlp2Layer768Unit_Tanh
+
 from .mlp import Mlp3Layer64Unit
 from .mlp import Mlp3Layer128Unit
 from .mlp import Mlp3Layer256Unit
 from .mlp import Mlp3Layer512Unit
 from .mlp import Mlp3Layer768Unit
+
+from .mlp import Mlp3Layer64Unit_Tanh
+from .mlp import Mlp3Layer128Unit_Tanh
+from .mlp import Mlp3Layer256Unit_Tanh
+from .mlp import Mlp3Layer512Unit_Tanh
+from .mlp import Mlp3Layer768Unit_Tanh
 
 from .mlp import Mlp3Layer64UnitLongerTraining
 from .mlp import Mlp3Layer128UnitLongerTraining
@@ -83,12 +95,24 @@ def get_architecture(name):
         "Mlp2Layer256Unit".lower():Mlp2Layer256Unit,
         "Mlp2Layer512Unit".lower():Mlp2Layer512Unit,
         "Mlp2Layer768Unit".lower():Mlp2Layer768Unit,
+        
+        "Mlp2Layer64Unit_Tanh".lower():Mlp2Layer64Unit_Tanh,
+        "Mlp2Layer128Unit_Tanh".lower():Mlp2Layer128Unit_Tanh,
+        "Mlp2Layer256Unit_Tanh".lower():Mlp2Layer256Unit_Tanh,
+        "Mlp2Layer512Unit_Tanh".lower():Mlp2Layer512Unit_Tanh,
+        "Mlp2Layer768Unit_Tanh".lower():Mlp2Layer768Unit_Tanh,
 
         "Mlp3Layer64Unit".lower():Mlp3Layer64Unit,
         "Mlp3Layer128Unit".lower():Mlp3Layer128Unit,
         "Mlp3Layer256Unit".lower():Mlp3Layer256Unit,
         "Mlp3Layer512Unit".lower():Mlp3Layer512Unit,
         "Mlp3Layer768Unit".lower():Mlp3Layer768Unit,
+        
+        "Mlp3Layer64Unit_Tanh".lower():Mlp3Layer64Unit_Tanh,
+        "Mlp3Layer128Unit_Tanh".lower():Mlp3Layer128Unit_Tanh,
+        "Mlp3Layer256Unit_Tanh".lower():Mlp3Layer256Unit_Tanh,
+        "Mlp3Layer512Unit_Tanh".lower():Mlp3Layer512Unit_Tanh,
+        "Mlp3Layer768Unit_Tanh".lower():Mlp3Layer768Unit_Tanh,
 
         "Mlp3Layer64UnitLongerTraining".lower():Mlp3Layer64UnitLongerTraining,
         "Mlp3Layer128UnitLongerTraining".lower():Mlp3Layer128UnitLongerTraining,
