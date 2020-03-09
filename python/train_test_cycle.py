@@ -8,6 +8,132 @@ import sys
 from model.base import ModelTraining
 
 
+def run_train_test_cycle_single(X_train, Y_train, X_test, Y_test, X_val, Y_val,
+                                L, model_class, output_dir, data_name, target_name,
+                                training_programme=None, do_this_if_model_exists='skip',
+                                save_data_in_output_dir=True, force_device_for_training=None, force_device_for_evaluation=None):
+    """
+    This script trains and evaluates a model using the given data X,Y over all splits as determined in S
+
+    Parameters:
+    -----------
+
+    X_train : np.ndarray - Training data. An numpy.ndarray shaped (N, T, C), where N is the number of samples, T is the number
+        of time points in the data and C is the number of channels per time point.
+
+    Y_train : np.ndarray - Training labels. An numpy.ndarray shaped (N, L), where N is the number of samples and L is the number of classes/labels
+
+    X_test : np.ndarray - Test data. See X_train
+
+    Y_test : np.ndarray - Test labels. See Y_train
+
+    X_val : np.ndarray - Validation data. See X_train
+
+    Y_val : np.ndarray - Validation labels. See Y_train
+
+    L : list - a list of channel labels of length C, where C is the number of channels in the data.
+        L holds textual descriptions of the data's channels
+
+    model_class: model_db.Model - a CLASS providing a set of required functions and the model architecture for executing the training and evaluation loop
+
+    output_dir: str - a string pointing towards the folder for writing results and data into.
+
+    data_name: str - what is the data/feature type called? e.g. GRF or JA_X_Lower, ...
+
+    target_name: str - what is the prediction target called? e.g. Subject, Gender or Injury, ...
+
+    training_programme: (optional) ModelTraining class - If this parameter is not None, the model's default training regime will be overwritten
+        with the passed ModelTraining class' train_model() function
+
+    do_this_if_model_exists: str - variable controlling the training/evaluation behaviour if a trained model already exists
+        at the model output location. options:
+        retrain (do everything from scratch)
+        load (load model and skip training, perform evaluation only)
+        skip (completely skip, do nothing)
+
+    save_data_in_output_dir: bool - controls wheter to save the experimental data (X, Y, L, LS, S) in the output directory
+
+    force_device_for_training: str - values can be either gpu or cpu. force the use of this device during training.
+
+    force_device_for_evaluation: str - values can either gpu or cpu. force the use of this device during evaluaton.
+        here, the use of the GPU is almost always recommended due to the large batch size to be processed.
+    """
+
+    # save data, labels and split information in output directory.
+    if save_data_in_output_dir:
+        print('Saving training and evaluation data to {}'.format(output_dir))
+        helpers.ensure_dir_exists(output_dir)
+        scipy.io.savemat('{}/data_train.mat'.format(output_dir), {'X':X_train})
+        scipy.io.savemat('{}/targets_train.mat'.format(output_dir), {'Y':Y_train})
+        scipy.io.savemat('{}/data_test.mat'.format(output_dir), {'X':X_test})
+        scipy.io.savemat('{}/targets_test.mat'.format(output_dir), {'Y':Y_test})
+        scipy.io.savemat('{}/data_val.mat'.format(output_dir), {'X':X_val})
+        scipy.io.savemat('{}/targets_val.mat'.format(output_dir), {'Y':Y_val})
+        scipy.io.savemat('{}/channel_labels.mat'.format(output_dir), {'L':L})
+    #prepare log to append anything happending in this session. kinda deprecated.
+    logfile = open('{}/log.txt'.format(output_dir), 'a')
+
+
+    # start main procedure
+    model = model_class(output_dir, data_name, target_name, 0) # note here: split index will always be zero.
+    model_dir = model.path_dir()
+    helpers.ensure_dir_exists(model_dir)
+
+    # this case: do nothing.
+    if model.exists() and do_this_if_model_exists == 'skip':
+        print('Model already exists at {}. skipping'.format(model_dir))
+        return #skip remaining code, there is nothing to be done. please move along.
+
+    # other cases: split data in any case. measure time. set output log
+    t_start = time.time()
+
+    # remember shape of test data as originally given
+    X_test_shape_orig  = X_test.shape
+
+    # model-specific data processing
+    X_train, X_val, X_test, Y_train, Y_val, Y_test =\
+        model.preprocess_data(X_train, X_val, X_test, Y_train, Y_val, Y_test)
+
+
+    if not model.exists() or (model.exists() and do_this_if_model_exists == 'retrain'):
+        model.build_model(X_train.shape, Y_train.shape)
+        if training_programme is not None:
+            #this instance-based monkey-patching is not the best way to do it, but probably the most flexible one.
+            model.train_model = types.MethodType(training_programme.train_model, model)
+        model.train_model(X_train, Y_train, X_val, Y_val, force_device=force_device_for_training)
+        model.save_model()
+    else:
+        model.load_model()
+
+    # compute test scores and relevance maps for model.
+    results = model.evaluate_model(X_test, Y_test,
+                                    force_device=force_device_for_evaluation,
+                                    lower_upper=helpers.get_channel_wise_bounds(X_train)) # compute and give data bounds computed from training data.
+
+    # measure time for training/evaluation cycle
+    t_end = time.time()
+
+    # write report for terminal printing
+    report  = '\n{}\n'.format(model.path_dir().replace('/', ' '))
+    report += 'test accuracy : {}\n'.format(results['acc'])
+    report += 'test loss (l1): {}\n'.format(results['loss_l1'])
+    report += 'train-evaluation-sequence done after {}s\n\n'.format(t_end-t_start)
+    print(report)
+
+    #dump results to output of this run
+    with open('{}/scores.txt'.format(model.path_dir()), 'w') as f: f.write(report)
+
+    #also write results to parsable log file for eval_score_logs module
+    logfile.write(report); logfile.flush()
+
+    #dump evaluation results to mat file
+    scipy.io.savemat('{}/outputs.mat'.format(model.path_dir()), results)
+
+# end of train_test_cycle_single
+
+
+
+
 def run_train_test_cycle(X, Y, L, LS, S, P, model_class,
                         output_root_dir, data_name, target_name,
                         training_programme=None,

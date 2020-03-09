@@ -21,13 +21,13 @@ import data
 import model
 from model import *
 from model.base import ModelArchitecture, ModelTraining
-import train_test_cycle         #import main loop
+import train_test_cycle             # import main loop/procedures
 
 current_datetime = datetime.datetime.now()
 #setting up an argument parser for controllalbe command line calls
 import argparse
 parser = argparse.ArgumentParser(description="Train and evaluate Models on human EMG recordings!")
-parser.add_argument('-d',  '--data_path', type=str, default='./data/Data_Baseline_Normed_V1_4_7Ps.mat', help='Sets the path to the dataset mat-file to be processed')
+parser.add_argument('-d',  '--data_path', type=str, nargs='*',  default='./python/data/Data_Baseline_Normed_V1_4_7Ps.mat', help='Sets the path(s) to the dataset mat-file(s) to be processed: One (1) path will cause the script to create --splits splits from the data, creating training, test and validation sets. Two (2) paths will interpret the data as dedicated/prepared training and test data, in that order. Three (3) paths will lead to the loading of these paths as dedicated training, test and validation sets, in that order.')
 parser.add_argument('-o',  '--output_dir', type=str, default='./output', help='Sets the output directory root for models and results. Default: "./output"')
 parser.add_argument('-me', '--model_exists', type=str, default='skip', help='Sets the behavior of the code in case a model file has been found at the output location. "skip" (default) skips remaining execution loop and does nothing. "retrain" trains the model anew. "evaluate" only evaluates the model with test data')
 parser.add_argument('-rs', '--random_seed', type=int, default=1234, help='Sets a random seed for the random number generator. Default: 1234')
@@ -51,8 +51,8 @@ ARGS = parser.parse_args()
 ################################
 
 # Load and prepare data wrt given command line args
-X, Y, X_channel_labels, Y_splits, Permutation = data.load_and_prepare(ARGS)
-
+#X, Y, X_channel_labels, Y_splits, Permutation = data.load_and_prepare(ARGS)
+loaded_data = data.load_and_prepare(ARGS)
 
 # Prepare model architecture
 arch = ARGS.architecture
@@ -73,30 +73,58 @@ elif isinstance(training_regime, str):
     if training_regime.lower() == 'none':
         training_regime = None #default training behavior of the architecture class, or training class
     else:
+        #try to get class from string name
         training_regime = model.training.get_training(training_regime)
-    #try to get class from string name
 
 
 
 
 # this load of parameters could also be packed into a dict and thenn passed as **param_dict, if this were to be automated further.
-train_test_cycle.run_train_test_cycle(
-        X=X,
-        Y=Y,
-        L=X_channel_labels,
-        LS=Y,
-        S=Y_splits,
-        P=Permutation,
-        model_class=arch,
-        output_root_dir=ARGS.output_dir,
-        data_name=ARGS.data_name,
-        target_name=ARGS.target_name,
-        save_data_in_output_dir=ARGS.save_data,
-        training_programme=training_regime, # model training behavio can be exchanged (for NNs), eg by using NeuralNetworkTrainingQuickTest instead of None. define new behaviors in model.training.py!
-        do_this_if_model_exists=ARGS.model_exists,
-        force_device_for_training=ARGS.force_training_device,
-        force_device_for_evaluation=ARGS.force_evaluation_device # computing heatmaps on gpu is always worth it for any model. requires a gpu, obviously
-)
+if loaded_data['IndexSplits']: #if we have splits, use this routine
+    train_test_cycle.run_train_test_cycle(
+            X=loaded_data['X'],
+            Y=loaded_data['Y'],
+            L=loaded_data['X_channel_labels'],
+            LS=loaded_data['Y'],
+            S=loaded_data['IndexSplits'],
+            P=loaded_data['Permutation'],
+            model_class=arch,
+            output_root_dir=ARGS.output_dir,
+            data_name=ARGS.data_name,
+            target_name=ARGS.target_name,
+            save_data_in_output_dir=ARGS.save_data,
+            training_programme=training_regime, # model training behavio can be exchanged (for NNs), eg by using NeuralNetworkTrainingQuickTest instead of None. define new behaviors in model.training.py!
+            do_this_if_model_exists=ARGS.model_exists,
+            force_device_for_training=ARGS.force_training_device,
+            force_device_for_evaluation=ARGS.force_evaluation_device # computing heatmaps on gpu is always worth it for any model. requires a gpu, obviously
+    )
+
+else: # assume dedicated files for training evaluation and such.
+    # make sure we have the essentials
+    assert loaded_data['X_train'] is not None, "Training data missing for run with predetermined data!"
+    assert loaded_data['Y_train'] is not None, "Training labels missing for run with predetermined data!"
+    assert loaded_data['X_test'] is not None,  "Test data missing for run with predetermined data!"
+    assert loaded_data['Y_test'] is not None,   "Test labels missing for run with predetermined data!"
+
+    # Do the thing.
+    train_test_cycle.run_train_test_cycle_single(   X_train = loaded_data['X_train'],
+                                                    Y_train = loaded_data['Y_train'],
+                                                    X_test  = loaded_data['X_test'],
+                                                    Y_test  = loaded_data['Y_test'],
+                                                    X_val   = loaded_data['X_val'],
+                                                    Y_val   = loaded_data['Y_val'],
+                                                    L       = loaded_data['X_train_channel_labels'],
+                                                    model_class = arch,
+                                                    output_dir  = ARGS.output_dir,
+                                                    data_name   = ARGS.data_name,
+                                                    target_name = ARGS.target_name,
+                                                    training_programme = training_regime,
+                                                    do_this_if_model_exists = ARGS.model_exists,
+                                                    save_data_in_output_dir = ARGS.save_data,
+                                                    force_device_for_training = ARGS.force_training_device,
+                                                    force_device_for_evaluation = ARGS.force_evaluation_device
+                                                )
+
 eval_score_logs.run(ARGS.output_dir)
 
 #record function call and parameters if we arrived here
