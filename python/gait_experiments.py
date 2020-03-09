@@ -13,14 +13,11 @@ import datetime
 import os
 import sys
 
-import numpy
-import numpy as numpy # no cupy import here, stay on the CPU in the main script.
-
-import scipy.io as scio # scientific python package, which supports mat-file IO within python
 import helpers
 import eval_score_logs
 import datetime
 
+import data
 import model
 from model import *
 from model.base import ModelArchitecture, ModelTraining
@@ -39,7 +36,7 @@ parser.add_argument('-ees','--enforce_equal_splits', type=helpers.str2bool, defa
 parser.add_argument('-ep', '--equalize_population', type=helpers.str2bool, default=False, help='Equalize the data population by truncating overpopulated classes?')
 parser.add_argument('-a',  '--architecture', type=str, default='SvmLinearL2C1e0', help='The name of the model architecture to use/train/evaluate. Can be any joint-specialization of model.base.ModelArchitecture and model.base.ModelTraining. Default: SvmLinearL2C1e0 ')
 parser.add_argument('-tp', '--training_programme', type=str, default=None, help='The training regime for the (NN) model to follow. Can be any class from model.training or any class implementing model.base.ModelTraining. The default value None executes the training specified for the NN model as part of the class definition.')
-parser.add_argument('-dn', '--data_name', type=str, default='GRF_AV', help='The feature name of the data behind --data_path to be processed. Default: GRF_AV')
+parser.add_argument('-dn', '--data_name', type=str, default='EMG_AV', help='The feature name of the data behind --data_path to be processed. Default: EMG_AV . NOTE: CURRENTLY HAS NO EFFECT ANYMORE, OUTSIDE A COSMETIC ONE')
 parser.add_argument('-tn', '--target_name', type=str, default='Subject', help='The target type of the data behind --data_path to be processed. Default: Injury')
 parser.add_argument('-sd', '--save_data', type=helpers.str2bool, default=True, help='Whether to save the training and split data at the output directory root or not. Default: True')
 parser.add_argument('-ft', '--force_training_device', type=str, default=None, help='Force training to be performed on a specific device, despite the default chosen numeric backend? Options: cpu, gpu, None. Default: None: Pick as defined in model definition.')
@@ -53,49 +50,8 @@ ARGS = parser.parse_args()
 #           "Main"
 ################################
 
-#load matlab data as dictionary using scipy
-gaitdata = scio.loadmat(ARGS.data_path)
-#gaitdata = data_io.read(ARGS.data_path)
-
-# Feature -> Bodenreaktionskraft
-X_EMG_AV = gaitdata['Feature']
-Label_GRF_AV = gaitdata['Feature_EMG_Label'][0][0]      # x 8 channel label
-
-#transposing axes, to obtain N x time x channel axis ordering, as in Horst et al. 2019
-X_EMG_AV = numpy.transpose(X_EMG_AV, [0, 2, 1])         # N x 200 x 8
-
-Y = gaitdata['Target_Subject']                          # N x S, binary labels
-print('Data shape:', X_EMG_AV.shape, Y.shape)
-
-
-
-X = X_EMG_AV       # prepare copy of data for each label type (due to introduced cleaning)
-print(Y.shape, Y.sum(axis=0))
-
-# remove labels/class information without data
-Y = helpers.trim_empty_classes(Y)
-
-# force class population euqlity, if desired
-if ARGS.equalize_population:
-    X_Injury, Y = helpers.equalize_population(X, Y, 'crop')
-print(Y.shape, Y.sum(axis=0))
-
-# split data for experiments.
-IndexSplits, Permutation = helpers.create_index_splits(Y, splits=ARGS.splits, seed=ARGS.random_seed, enforce_equal_splits=ARGS.enforce_equal_splits)
-#apply the permutation to the given data for the inputs and labels to match the splits again
-X = X[Permutation, ...]
-Y = Y[Permutation, ...]
-
-#register and then select available features
-#TODO: REFACTOR INTO A DATA LOADING CLASS once there is more than one valid feature type
-X, X_channel_labels = {'GRF_AV': (X, Label_GRF_AV)}[ARGS.data_name]
-
-#register and then select available targets
-#TODO: REFACTOR INTO A DATA LOADING CLASS
-Y, Y_splits = {'Subject': (Y, IndexSplits)}[ARGS.target_name]
-
-
-
+# Load and prepare data wrt given command line args
+X, Y, X_channel_labels, Y_splits, Permutation = data.load_and_prepare(ARGS)
 
 
 # Prepare model architecture
@@ -107,6 +63,7 @@ elif isinstance(arch,str):
     arch = model.get_architecture(arch)
 else:
     raise ValueError('Invalid command line argument type {} for "architecture'.format(type(arch)))
+
 
 # Select training procedure
 training_regime =  ARGS.training_programme
