@@ -53,34 +53,23 @@ ARGS = parser.parse_args()
 #           "Main"
 ################################
 
-#TODO: ISOLATE DATA LOADING INTO CLASS
-
 #load matlab data as dictionary using scipy
 gaitdata = scio.loadmat(ARGS.data_path)
+#gaitdata = data_io.read(ARGS.data_path)
 
 # Feature -> Bodenreaktionskraft
-X_GRF_AV = gaitdata['Feature']
-Label_GRF_AV = gaitdata['Feature_EMG_Label'][0][0]   # x 6 channel label
+X_EMG_AV = gaitdata['Feature']
+Label_GRF_AV = gaitdata['Feature_EMG_Label'][0][0]      # x 8 channel label
 
 #transposing axes, to obtain N x time x channel axis ordering, as in Horst et al. 2019
-X_GRF_AV = numpy.transpose(X_GRF_AV, [0, 2, 1])         # N x 101 x 6
+X_EMG_AV = numpy.transpose(X_EMG_AV, [0, 2, 1])         # N x 200 x 8
 
-Y = gaitdata['Target_Subject']                  # N x S, binary labels
-
-#
-# TODO: REMOVE DATA LOADING AND BELOW DATA EXTENSION HACK WITH LOADING OF PROPER DATA!
-#
-# NOTE: extended toy data
-import numpy as np
-#X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV], axis=1)[:,0:200,:] # N x 200 x 6
-#X_GRF_AV = np.concatenate([X_GRF_AV, X_GRF_AV[...,:2]], axis=2) # N x 200 x 8
-#Label_GRF_AV = np.concatenate([Label_GRF_AV,Label_GRF_AV[...,:2]], axis=0) # extend channel labels
-#Y =  np.array([Y[:,i*10:i*10+10].sum(axis=1)>0 for i in range(20)]).T #aggregate subject labels into 20 groups of 10(ish) classes
-print('toy data shape:', X_GRF_AV.shape, Y.shape)
-# END OF (Toy) DATA EXTENSION. Put real data here please.
+Y = gaitdata['Target_Subject']                          # N x S, binary labels
+print('Data shape:', X_EMG_AV.shape, Y.shape)
 
 
-X = X_GRF_AV       # prepare copy of data for each label type (due to introduced cleaning)
+
+X = X_EMG_AV       # prepare copy of data for each label type (due to introduced cleaning)
 print(Y.shape, Y.sum(axis=0))
 
 # remove labels/class information without data
@@ -97,7 +86,19 @@ IndexSplits, Permutation = helpers.create_index_splits(Y, splits=ARGS.splits, se
 X = X[Permutation, ...]
 Y = Y[Permutation, ...]
 
+#register and then select available features
+#TODO: REFACTOR INTO A DATA LOADING CLASS once there is more than one valid feature type
+X, X_channel_labels = {'GRF_AV': (X, Label_GRF_AV)}[ARGS.data_name]
 
+#register and then select available targets
+#TODO: REFACTOR INTO A DATA LOADING CLASS
+Y, Y_splits = {'Subject': (Y, IndexSplits)}[ARGS.target_name]
+
+
+
+
+
+# Prepare model architecture
 arch = ARGS.architecture
 if isinstance(arch, ModelArchitecture) and isinstance(arch, ModelTraining):
     pass # already a valid class
@@ -107,6 +108,7 @@ elif isinstance(arch,str):
 else:
     raise ValueError('Invalid command line argument type {} for "architecture'.format(type(arch)))
 
+# Select training procedure
 training_regime =  ARGS.training_programme
 if training_regime is None or isinstance(training_regime, ModelTraining):
     pass #default training behavior of the architecture class, or training class
@@ -117,13 +119,8 @@ elif isinstance(training_regime, str):
         training_regime = model.training.get_training(training_regime)
     #try to get class from string name
 
-#register and then select available features
-#TODO: REFACTOR INTO A DATA LOADING CLASS once there is more than one valid feature type
-X, X_channel_labels = {'GRF_AV': (X, Label_GRF_AV)}[ARGS.data_name]
 
-#register and then select available targets
-#TODO: REFACTOR INTO A DATA LOADING CLASS
-Y, Y_splits = {'Subject': (Y, IndexSplits)}[ARGS.target_name]
+
 
 # this load of parameters could also be packed into a dict and thenn passed as **param_dict, if this were to be automated further.
 train_test_cycle.run_train_test_cycle(
