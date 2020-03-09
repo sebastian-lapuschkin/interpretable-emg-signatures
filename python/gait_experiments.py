@@ -30,7 +30,7 @@ current_datetime = datetime.datetime.now()
 #setting up an argument parser for controllalbe command line calls
 import argparse
 parser = argparse.ArgumentParser(description="Train and evaluate Models on human EMG recordings!")
-parser.add_argument('-d',  '--data_path', type=str, default='./data/2019_frontiers_small_dataset_v3_aff-unaff-nonorm_1-2_.mat', help='Sets the path to the dataset mat-file to be processed')
+parser.add_argument('-d',  '--data_path', type=str, default='./data/Data_Baseline_Normed_V1_4_7Ps.mat', help='Sets the path to the dataset mat-file to be processed')
 parser.add_argument('-o',  '--output_dir', type=str, default='./output', help='Sets the output directory root for models and results. Default: "./output"')
 parser.add_argument('-me', '--model_exists', type=str, default='skip', help='Sets the behavior of the code in case a model file has been found at the output location. "skip" (default) skips remaining execution loop and does nothing. "retrain" trains the model anew. "evaluate" only evaluates the model with test data')
 parser.add_argument('-rs', '--random_seed', type=int, default=1234, help='Sets a random seed for the random number generator. Default: 1234')
@@ -41,10 +41,10 @@ parser.add_argument('-a',  '--architecture', type=str, default='SvmLinearL2C1e0'
 parser.add_argument('-tp', '--training_programme', type=str, default=None, help='The training regime for the (NN) model to follow. Can be any class from model.training or any class implementing model.base.ModelTraining. The default value None executes the training specified for the NN model as part of the class definition.')
 parser.add_argument('-dn', '--data_name', type=str, default='GRF_AV', help='The feature name of the data behind --data_path to be processed. Default: GRF_AV')
 parser.add_argument('-tn', '--target_name', type=str, default='Subject', help='The target type of the data behind --data_path to be processed. Default: Injury')
-parser.add_argument('-sd', '--save_data', type=bool, default=True, help='Whether to save the training and split data at the output directory root or not. Default: True')
+parser.add_argument('-sd', '--save_data', type=helpers.str2bool, default=True, help='Whether to save the training and split data at the output directory root or not. Default: True')
 parser.add_argument('-ft', '--force_training_device', type=str, default=None, help='Force training to be performed on a specific device, despite the default chosen numeric backend? Options: cpu, gpu, None. Default: None: Pick as defined in model definition.')
 parser.add_argument('-fe', '--force_evaluation_device', type=str, default=None, help='Force evaluat to be performed on a specific device, despite the default chosen numeric backend? Options: cpu, gpu, None. Default: None. NOTE: Execution on GPU is beneficial in almost all cases, due to the massive across-batch-parallelism.')
-parser.add_argument('-rc', '--record_call', type=bool, default=False, help='Whether to record the current call to this script in an ouput file specified via -rf or --record-file. Default: False. Only records in case the script terminates gracefully')
+parser.add_argument('-rc', '--record_call', type=helpers.str2bool, default=False, help='Whether to record the current call to this script in an ouput file specified via -rf or --record-file. Default: False. Only records in case the script terminates gracefully')
 parser.add_argument('-rf', '--record_file', type=str, default='./command_history.txt', help='Determines the file name into which the current call to this script is recorded')
 ARGS = parser.parse_args()
 
