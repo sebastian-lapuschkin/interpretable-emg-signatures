@@ -1,10 +1,10 @@
 
 '''
-@author: Sebastian Lapuschkin
-@maintainer: Sebastian Lapuschkin
-@contact: sebastian.lapuschkin@hhi.fraunhofer.de, wojciech.samek@hhi.fraunhofer.de
+@author: Sebastian Lapuschkin, Fabian Horst
+@maintainer: Sebastian Lapuschkin, Fabian Horst
+@contact: sebastian.lapuschkin@hhi.fraunhofer.de, horst@uni-mainz.de
 @version: 1.0
-@copyright: Copyright (c)  2019, Sebastian Lapuschkin
+@copyright: Copyright (c) 2020, Sebastian Lapuschkin, Fabian Horst
 @license : BSD-2-Clause
 '''
 
@@ -27,9 +27,9 @@ from model.base import ModelArchitecture, ModelTraining
 import train_test_cycle         #import main loop
 
 current_datetime = datetime.datetime.now()
-#setting up an argument parser for controllale command line calls
+#setting up an argument parser for controllalbe command line calls
 import argparse
-parser = argparse.ArgumentParser(description="Train and evaluate Models on human gait recordings!")
+parser = argparse.ArgumentParser(description="Train and evaluate Models on human EMG recordings!")
 parser.add_argument('-d',  '--data_path', type=str, default='./data/2019_frontiers_small_dataset_v3_aff-unaff-nonorm_1-2_.mat', help='Sets the path to the dataset mat-file to be processed')
 parser.add_argument('-o',  '--output_dir', type=str, default='./output', help='Sets the output directory root for models and results. Default: "./output"')
 parser.add_argument('-me', '--model_exists', type=str, default='skip', help='Sets the behavior of the code in case a model file has been found at the output location. "skip" (default) skips remaining execution loop and does nothing. "retrain" trains the model anew. "evaluate" only evaluates the model with test data')
