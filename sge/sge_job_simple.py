@@ -35,6 +35,12 @@ if __name__ == '__main__':
     else:
         ARGSFILE = sys.argv[1]
 
+    args_file_name = os.path.basename(ARGSFILE)
+    args_file_name = os.path.splitext(args_file_name)[0]
+
+    LOGDIR += '/{}'.format(args_file_name)
+    SCRIPTDIR += '/{}'.format(args_file_name)
+
     if not os.path.isdir(LOGDIR):
         print('Creating {}'.format(LOGDIR))
         os.makedirs(LOGDIR)
