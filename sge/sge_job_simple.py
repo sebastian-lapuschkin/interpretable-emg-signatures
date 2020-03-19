@@ -31,6 +31,7 @@ if __name__ == '__main__':
         print('Not enough arguments. passing of args file path required.')
         print('Example: python3 sge_job_simple.py ./path/to/arg_lines.txt')
         print('arg_lines.args should be a file where all the command line args are given in one line')
+        exit()
     else:
         ARGSFILE = sys.argv[1]
 
