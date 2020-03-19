@@ -19,8 +19,8 @@ CONDA = 'conda'
 ENV = 'gait'
 HERE = os.getcwd()
 JOBNAME = None
-LOGDIR = '/home/fe/lapuschkin/logs-gait'
-SCRIPTDIR = '/home/fe/lapuschkin/scripts-gait'
+LOGDIR = '/home/fe/lapuschkin/logs-gait-emg'
+SCRIPTDIR = '/home/fe/lapuschkin/scripts-gait-emg'
 
 
 if __name__ == '__main__':
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         #generate script
         execthis    =  ['#!/bin/bash']
         execthis    =  ['source /home/fe/lapuschkin/.bashrc']           # enables conda for bash
-        execthis    += ['cd {}/../python'.format(HERE)]                    # go to python root
+        execthis    += ['cd {}/../python'.format(HERE)]                 # go to python root
         execthis    += ['{} activate {}'.format(CONDA, ENV)]            # enter venv
         execthis    += ['python3 gait_experiments.py {}'.format(args)]  # call script with parameters.
         execthis    += ['{} deactivate'.format(CONDA)]                  # leave venv
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         cmd += [SCRIPTFILE]
         print('    preparing to submit via command: {}'.format(cmd))
 
-        
+
         p = subprocess.Popen( cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
         ( stdout, stderr ) = p.communicate()
         print('    ', 'P:', p, 'O:', stdout, 'E:',  stderr)
@@ -96,10 +96,10 @@ if __name__ == '__main__':
             exit()
 
         print('    dispatched job {0} with id {1}'.format(JOBNAME, id_job))
-        
+
 
         print('    submitted job executes:')
         print('\n'.join(['>>>> ' + e for e in execthis.split('\n')]))
         print()
-        
+
 
