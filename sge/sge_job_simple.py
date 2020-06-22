@@ -60,8 +60,8 @@ if __name__ == '__main__':
 
         #generate script
         execthis    =  ['#!/bin/bash']
-        execthis    =  ['source /home/fe/lapuschkin/.bashrc']           # enables conda for bash
-        execthis    =  ['sleep {}'.format(i * WAIT_TIME_BASE)]          # wait some seconds for batch-submitted jobs to combat concurrency issues
+        execthis    +=  ['source /home/fe/lapuschkin/.bashrc']           # enables conda for bash
+        execthis    +=  ['sleep {}'.format(i * WAIT_TIME_BASE)]          # wait some seconds for batch-submitted jobs to combat concurrency issues
         execthis    += ['cd {}/../python'.format(HERE)]                 # go to python root
         execthis    += ['{} activate {}'.format(CONDA, ENV)]            # enter venv
         execthis    += ['python3 gait_experiments.py {}'.format(args)]  # call script with parameters.
