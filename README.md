@@ -1,6 +1,6 @@
 # THIS README NEEDS AN APPROPRIATE TITLE, A FIGURE, ETC
 
-![overview figure](./figures/overview/overview_46.png)
+![overview figure](./figures/Fig_1.png)
 
 This repository contains the python code for training and evaluation of models as presented in
 [On the Understanding and Interpretation of Machine Learning Predictions in Clinical Gait Analysis Using Explainable Artificial Intelligence](https://arxiv.org/abs/1912.07737)
