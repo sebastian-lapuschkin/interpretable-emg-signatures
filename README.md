@@ -46,8 +46,9 @@ Option A only considers CPU hardware, while option B enables GPU support
 for neural network training and evaluation. Comment/uncomment the lines appropriately.
 **TODO TEST AND VERIFY**
 
-All recorded gait data used in the paper is available in folder `python/data`.
-**TODO ADD VIA ALTERNATIVE SOURCE**
+All recorded gait data used in the paper is available for download [here](https://datacloud.hhi.fraunhofer.de/nextcloud/s/QSZjxQryHFTDrCd).
+The subfolder `data` is expected to be placed in `python`, i.e. as `python/data`, and will feed the training/evaluation scripts (assuming those remain unaltered).
+Folder `robustness` contains Matlab scripts and data used for **TODO FABIAN DESCRIBE THIS, AND HOW IT IS USED**
 
 Training- and evaluation scripts for fully reproducing the data splits, models and prediction explanations are
 provided with files `python/gait_experiments_batch*.py`.
@@ -59,6 +60,6 @@ or to be submitted to a SUN Grid Engine with
 ```
 python sge_job_simple.py your_file_of_choice.args
 ```
-Some paths and variables need to be adjusted.
+Some paths and variables might need to be adjusted.
 
 
