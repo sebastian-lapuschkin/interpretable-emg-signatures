@@ -3,7 +3,7 @@
 ![overview figure](./figures/Fig_1.png)
 
 This repository contains the python code for training and evaluation of models as presented in
-[Revealing the unique features of each individual's muscle activation signatures](https://www.biorxiv.org/content/10.1101/2020.07.23.217034v1)
+["Revealing the unique features of each individual's muscle activation signatures"](https://www.biorxiv.org/content/10.1101/2020.07.23.217034v1)
 ```
 @article {aeles2020revealing,
   title = {Revealing the unique features of each individual's muscle activation signatures},
