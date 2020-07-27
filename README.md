@@ -44,7 +44,6 @@ Folder `python` contains code for model training and evaluation, based on python
 In folder `python`, the file `install.sh` contains instructions to setup [`Miniconda3`](https://docs.conda.io/en/latest/miniconda.html)-based virtual environments for python, as required by our code.
 Option A only considers CPU hardware, while option B enables GPU support
 for neural network training and evaluation. Comment/uncomment the lines appropriately.
-**TODO TEST AND VERIFY**
 
 All recorded pedalling and gait data used in the paper is available for download [here](https://datacloud.hhi.fraunhofer.de/nextcloud/s/QSZjxQryHFTDrCd).
 The subfolder `data` is expected to be placed in `python`, i.e. as `python/data`, and will feed the training/evaluation scripts (assuming those remain unaltered).
