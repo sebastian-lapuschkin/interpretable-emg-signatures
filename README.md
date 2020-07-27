@@ -1,29 +1,27 @@
-# THIS README NEEDS AN APPROPRIATE TITLE, A FIGURE, ETC
+# REVEALING THE UNIQUE FEATURES OF EACH INDIVIDUAL'S MUSCLE ACTIVATION SIGNATURES
 
 ![overview figure](./figures/Fig_1.png)
 
 This repository contains the python code for training and evaluation of models as presented in
-[On the Understanding and Interpretation of Machine Learning Predictions in Clinical Gait Analysis Using Explainable Artificial Intelligence](https://arxiv.org/abs/1912.07737)
+[Revealing the unique features of each individual's muscle activation signatures](https://www.biorxiv.org/content/10.1101/2020.07.23.217034v1)
 ```
-@article{horst2019understanding,
-  title={On the Understanding and Interpretation of Machine Learning Predictions in Clinical Gait Analysis Using Explainable Artificial Intelligence},
-  author={Horst, Fabian and
-          Slijepcevic, Djordje and
-          Lapuschkin, Sebastian and
-          Raberger, Anna-Maria and
-          Zeppelzauer, Matthias and
-          Samek, Wojciech and
-          Breiteneder, Christian and
-          Sch{\"o}llhorn, Wolfgang I
-          and Horsak, Brian},
-  journal={arXiv preprint arXiv:1912.07737},
-  year={2019}
+@article {aeles2020revealing,
+  title = {Revealing the unique features of each individual's muscle activation signatures},
+	author = {Aeles, Jeroen and
+            Horst, Fabian and
+            Lapuschkin, Sebastian and
+            Lacourpaille, Lilian and
+            Hug, Fran{\c c}ois},
+	year = {2020},
+	doi = {10.1101/2020.07.23.217034},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2020/07/24/2020.07.23.217034},
+	journal = {bioRxiv}
 }
+
 ```
 
 ## Code, Data and Reproducibility
-
-Folder `figures` contains code and data for (generating) the overview figure shown in the paper.
 
 Folder `python` contains code for model training and evaluation, based on python3 and the python sub-package of the [LRP Toolbox (version 1.3.0rc2)](https://github.com/sebastian-lapuschkin). Should you use or extend this implementation please consider citing the toolbox, as well as our paper mentioned above.
 ```
@@ -46,8 +44,11 @@ Folder `python` contains code for model training and evaluation, based on python
 In folder `python`, the file `install.sh` contains instructions to setup [`Miniconda3`](https://docs.conda.io/en/latest/miniconda.html)-based virtual environments for python, as required by our code.
 Option A only considers CPU hardware, while option B enables GPU support
 for neural network training and evaluation. Comment/uncomment the lines appropriately.
+**TODO TEST AND VERIFY**
 
 All recorded gait data used in the paper is available in folder `python/data`.
+**TODO ADD VIA ALTERNATIVE SOURCE**
+
 Training- and evaluation scripts for fully reproducing the data splits, models and prediction explanations are
 provided with files `python/gait_experiments_batch*.py`.
 The folder `sge` contains files `*.args`, presenting the mentioned training-evaluation runs as (probably more) handy command line parameters, one per line, either to be called directly as
