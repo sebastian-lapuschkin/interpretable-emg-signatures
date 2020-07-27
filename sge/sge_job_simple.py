@@ -2,6 +2,7 @@
 Created on Aug 09 09:32:28 2017
 
 @author: helle
+@author: lapuschkin
 """
 
 import argparse
