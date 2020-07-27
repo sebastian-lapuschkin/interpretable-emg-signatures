@@ -46,7 +46,7 @@ Option A only considers CPU hardware, while option B enables GPU support
 for neural network training and evaluation. Comment/uncomment the lines appropriately.
 **TODO TEST AND VERIFY**
 
-All recorded gait data used in the paper is available for download [here](https://datacloud.hhi.fraunhofer.de/nextcloud/s/QSZjxQryHFTDrCd).
+All recorded pedalling and gait data used in the paper is available for download [here](https://datacloud.hhi.fraunhofer.de/nextcloud/s/QSZjxQryHFTDrCd).
 The subfolder `data` is expected to be placed in `python`, i.e. as `python/data`, and will feed the training/evaluation scripts (assuming those remain unaltered).
 Folder `robustness` contains Matlab scripts and data used for **TODO FABIAN DESCRIBE THIS, AND HOW IT IS USED**
 
