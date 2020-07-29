@@ -46,8 +46,8 @@ Option A only considers CPU hardware, while option B enables GPU support
 for neural network training and evaluation. Comment/uncomment the lines appropriately.
 
 All recorded pedalling and walking data used in the paper is available for download [here](https://datacloud.hhi.fraunhofer.de/nextcloud/s/QSZjxQryHFTDrCd).
-The subfolder `data` is expected to be placed in `python`, i.e. as `python/data`, and will feed the training/evaluation scripts (assuming those remain unaltered).
-Folder `robustness` contains Matlab scripts and data used for **TODO FABIAN DESCRIBE THIS, AND HOW IT IS USED**
+The folder `data` is expected to be placed in `python`, i.e. as `python/data`, and will feed the training/evaluation scripts (assuming those remain unaltered).
+In addition, the folder `data` contains two Matlab scripts that can be used to generate data for repeating the experiments to determine the robustness of LRP relevance scores against the data used for training the models (in terms of the number of participants involved).
 
 Training- and evaluation scripts for fully reproducing the data splits, models and prediction explanations are
 provided with files `python/gait_experiments_batch*.py`.
