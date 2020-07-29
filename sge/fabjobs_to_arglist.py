@@ -16,7 +16,7 @@ with open(fabjob_file,  'rt') as f:
             continue
 
         #get args from call.
-        line_components = line.split(',')
+        line_components = line[:line.rfind(')')].split(',')
         arg_components = [c for c in line_components if 'args=' in c][0]
         arg_components = arg_components.split('=')[1]
 
