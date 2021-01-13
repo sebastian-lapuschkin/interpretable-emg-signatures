@@ -3,20 +3,23 @@
 ![overview figure](./figures/Fig_1.png)
 
 This repository contains the python code for training and evaluation of models as presented in
-["Revealing the unique features of each individual's muscle activation signatures"](https://www.biorxiv.org/content/10.1101/2020.07.23.217034v1)
+["Revealing the unique features of each individual's muscle activation signatures"](https://doi.org/10.1098/rsif.2020.0770)
 ```
-@article {aeles2020revealing,
+@article {aeles2021revealing,
   title = {Revealing the unique features of each individual's muscle activation signatures},
   author = {Aeles, Jeroen and
             Horst, Fabian and
             Lapuschkin, Sebastian and
             Lacourpaille, Lilian and
             Hug, Fran{\c c}ois},
-  year = {2020},
-  doi = {10.1101/2020.07.23.217034},
-  publisher = {Cold Spring Harbor Laboratory},
-  URL = {https://www.biorxiv.org/content/early/2020/07/24/2020.07.23.217034},
-  journal = {bioRxiv}
+  journal = {Journal of the Royal Society Interface},
+  volume = {18},
+  number = {174},
+  pages = {20200770},
+  year = {2021},
+  publisher = {The Royal Society},
+  doi = {10.1098/rsif.2020.0770},
+  url = {https://royalsocietypublishing.org/doi/10.1098/rsif.2020.0770}
 }
 
 ```
